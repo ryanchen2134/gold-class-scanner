@@ -1,5 +1,3 @@
-# gold-class-scanner
-
 This is a tool to scan a specific class, info in payload under config.py
     Intercept a POST request's form-data for this information
     Hardcoded for classes, easily adaptable for sections.
