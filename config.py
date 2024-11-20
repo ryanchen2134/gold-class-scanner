@@ -2,13 +2,16 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
+TARGET_CLASS_NUMBER = '42747' # 160A Stochastic Processes
 
+to_email = "rueianchen@gmail.com"
+email_message = "An error occurred while running the program. Please check the logs for more information.\n"
 
 payload = {
     
-    "ctl00$pageContent$quarterDropDown": "20244", #As is in 2024, 4 Which indicate the fall quarter
-    "ctl00$pageContent$subjectAreaDropDown": "PHYS ",
-    "ctl00$pageContent$courseNumberTextBox": "100",
+    "ctl00$pageContent$quarterDropDown": "20251", #2025 winter
+    "ctl00$pageContent$subjectAreaDropDown": "PSTAT",
+    "ctl00$pageContent$courseNumberTextBox": "120B",
     
     "ctl00$pageContent$HiddenTextBox": "",
     "ctl00$pageContent$searchButton": "Search",

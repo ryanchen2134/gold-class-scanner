@@ -2,16 +2,11 @@ import asyncio, json
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 from emailsender import send_email
-from config import initial_cookies, payload, username, passwd, keyValue, credentialIdPadded as credentialId, rpId, userHandle, counter, keyIdentifier
+from config import TARGET_CLASS_NUMBER,to_email,email_message,initial_cookies, payload, username, passwd, keyValue, credentialIdPadded as credentialId, rpId, userHandle, counter, keyIdentifier
 
-
-
-TARGET_CLASS_NUMBER = '41129' 
-to_email = "rueianchen@gmail.com"
-email_message = "An error occurred while running the program. Please check the logs for more information.\n"
 async def run_script():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         
         # Set initial cookies
