@@ -2,9 +2,10 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-TARGET_CLASS_NUMBER = '42747' # 160A Stochastic Processes
+TARGET_CLASS_NUMBER = '42747' # 120B stats
 
 to_email = "rueianchen@gmail.com"
+#default email message
 email_message = "An error occurred while running the program. Please check the logs for more information.\n"
 
 payload = {
@@ -19,7 +20,6 @@ payload = {
     "__EVENTARGUMENT": "",
     "__LASTFOCUS": ""
 }
-
 # Sensitive Personal Information
 
 ## Private Key

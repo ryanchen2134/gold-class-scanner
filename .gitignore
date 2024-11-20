@@ -1,3 +1,6 @@
 .env
 __pycache__
 page.html
+cookies.json
+VENV
+screenshots
