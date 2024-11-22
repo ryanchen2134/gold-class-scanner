@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
+HEADLESS = True
+
 TARGET_CLASS_NUMBER = '42747' # 120B stats
 
 to_email = "rueianchen@gmail.com"

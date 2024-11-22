@@ -4,7 +4,7 @@ import traceback
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 from emailsender import send_email
-from config import TARGET_CLASS_NUMBER,to_email,email_message,initial_cookies, payload, username, passwd, keyValue, credentialIdPadded as credentialId, rpId, userHandle, counter, keyIdentifier
+from config import HEADLESS,TARGET_CLASS_NUMBER,to_email,email_message,initial_cookies, payload, username, passwd, keyValue, credentialIdPadded as credentialId, rpId, userHandle, counter, keyIdentifier
 
 if not os.path.exists('./screenshots'):
     os.makedirs('./screenshots')
@@ -18,7 +18,7 @@ async def save_cookies(context):
             json.dump(cookies, cookies_file)
         print(f"Cookies saved to {cookies_path}")
     except Exception as e:
-        await handle_error("Error in save_cookies", e)
+        await handle_error("Error in save_cookies", e,"")
 
 async def load_cookies(context):
     """Load cookies from a JSON file and set them in the browser context."""
@@ -29,7 +29,7 @@ async def load_cookies(context):
                 await context.add_cookies(cookies)
             print(f"Cookies loaded from {cookies_path}")
     except Exception as e:
-        await handle_error("Error in load_cookies", e)
+        await handle_error("Error in load_cookies", e,"")
     
 async def handle_error(context_message, exception, stringtrace):
     """Handle errors by logging traceback and sending an email."""
@@ -41,7 +41,7 @@ async def handle_error(context_message, exception, stringtrace):
 async def run_script():
     try:
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await p.chromium.launch(headless=HEADLESS)
             context = await browser.new_context()
             
             await context.add_cookies(initial_cookies)
@@ -61,7 +61,7 @@ async def run_script():
             await errorhandler_email()
             await browser.close()
     except Exception as e:
-        await handle_error("Error in run_script", e)
+        await handle_error("Error in run_script", e,"")
 
 async def check_class_status(page, context):
     TRACE = ""
@@ -88,6 +88,8 @@ async def check_class_status(page, context):
         # Go to GOLD page again
         await page.goto('https://my.sa.ucsb.edu/gold/BasicFindCourses.aspx', wait_until='domcontentloaded')
         #screenshot
+        
+        await page.screenshot(path='./screenshots/step-5-gold.png')
         print("Attempting to access GOLD, performing scan")
         TRACE += "Attempting to access GOLD, performing scan"
 
@@ -109,10 +111,11 @@ async def check_class_status(page, context):
         return await parse_and_process(page)
     
     except Exception as e:
-        await handle_error("Error in check_class_status", e)
+        await handle_error("Error in check_class_status", e,"")
         return False
 
-payload_classname = f"{payload["ctl00$pageContent$subjectAreaDropDown"]} {payload["ctl00$pageContent$courseNumberTextBox"]}"
+payload_classname = payload["ctl00$pageContent$subjectAreaDropDown"] + " " + payload["ctl00$pageContent$courseNumberTextBox"]
+
 async def parse_and_process(page):
     TRACE = ""
     try:
@@ -198,12 +201,23 @@ async def duo_auth(page, context):
         send_push_button_locator = '#login-form button.auth-button[type="submit"]'
         await duo_frame.wait_for_selector(send_push_button_locator, state='visible', timeout=5000)
         await duo_frame.click(selector=send_push_button_locator)
+        
+        #wait for page to settle
+        await duo_frame.wait_for_load_state('domcontentloaded')
+        #screenshot
+        print("Attempting to login CAS, page navigated")
+        await duo_frame.page.screenshot(path='./screenshots/step-5-duo-auth.png')
+        
+        #don't proceed until duo_frame closes
+        await duo_frame.wait_for_load_state('networkidle')
+        
 
         # Save cookies
         await save_cookies(context)
+        
     
     except Exception as e:
-        await handle_error("Error in duo_auth", e)
+        await handle_error("Error in duo_auth", e,"")
     
 
 async def login_cas(page, context):
@@ -225,18 +239,28 @@ async def login_cas(page, context):
         elif "Duo" in await page.title(): # We do this in case we're logged in but not 2FA Authed
             await duo_auth(page, context)
         #f no redirects then we land at title = "Login Successful - UCSB Authentication Service"
-        elif "Log In" in page.title():
+        elif "Log In" in await page.title():
             print("Logging in with credentials...")
             await page.fill('input#username', username)
             await page.fill('input#password', passwd)
             await page.click('input[name="submit"]')
             await page.wait_for_load_state('commit')
             
+            await page.screenshot(path='./screenshots/step-3-cas-login.png')
+            
+            #wait for page to settle
+            await page.wait_for_load_state('domcontentloaded')
+            #screenshot
+            print("Attempting to login CAS, page navigated")
+            await page.screenshot(path='./screenshots/step-4-cas-login.png')
+            
             await duo_auth(page, context)
+            
+            
 
         return True
     except Exception as e:
-        await handle_error("Error in login_cas", e)
+        await handle_error("Error in login_cas", e, "")
         return False
 
 async def save_page_content(page, name = 'page.html'):
