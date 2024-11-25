@@ -1,10 +1,16 @@
 from dotenv import load_dotenv
 import os
-load_dotenv()
+load_dotenv(override=True)
 
 HEADLESS = True
 
 TARGET_CLASS_NUMBER = '42747' # 120B stats
+
+HOPT_COUNTER = int(os.environ['HOPT_COUNTER'])
+
+HOPT_KEY = os.environ['HOPT_KEY']
+
+
 
 to_email = "rueianchen@gmail.com"
 #default email message
@@ -23,6 +29,8 @@ payload = {
     "__LASTFOCUS": ""
 }
 # Sensitive Personal Information
+
+
 
 ## Private Key
 #this one is used propietary by DUO
