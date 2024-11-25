@@ -2,17 +2,13 @@ from dotenv import load_dotenv
 import os
 load_dotenv(override=True)
 
+start_time = None
+
 HEADLESS = True
 
 TARGET_CLASS_NUMBER = '42747' # 120B stats
 
-HOPT_COUNTER = int(os.environ['HOPT_COUNTER'])
-
-HOPT_KEY = os.environ['HOPT_KEY']
-
-
-
-to_email = "rueianchen@gmail.com"
+cookies_path = 'cookies.json'
 #default email message
 email_message = "An error occurred while running the program. Please check the logs for more information.\n"
 
@@ -28,9 +24,25 @@ payload = {
     "__EVENTARGUMENT": "",
     "__LASTFOCUS": ""
 }
+
+
+auth_log = []
+cas_auth_counter = int(0)
+duo_auth_counter = int(0)
+
+payload_classname = payload["ctl00$pageContent$subjectAreaDropDown"] + \
+    " " + payload["ctl00$pageContent$courseNumberTextBox"]
+
+
 # Sensitive Personal Information
 
+HOPT_COUNTER = int(os.environ['HOPT_COUNTER'])
 
+HOPT_KEY = os.environ['HOPT_KEY']
+
+
+
+to_email = "rueianchen@gmail.com"
 
 ## Private Key
 #this one is used propietary by DUO
